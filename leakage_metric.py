@@ -83,6 +83,9 @@ class LeakageMetric(object):
         -"none" does no normalization, so the Mueller matrix units which are
          the square of the units U of the input E-field data. Then the leakage
          integral has units of U^4.
+
+    The result is a function of frequency stored in the attribute leakage_bound.
+    The frequency axis is stored in freqs.
     """
     def __init__(self, filenames, normalization, filename2freq=None):
         if normalization not in ['peak', 'integral', 'none']:
