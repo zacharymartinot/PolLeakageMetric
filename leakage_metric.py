@@ -182,9 +182,11 @@ class LeakageMetric(object):
         norms['integral'] = (4. * np.pi/npix) * np.sum(hm * M00)
         norms['peak'] = np.amax(M00)
 
-        L = 0
-        for M in [M01, M02, M03]:
-            L += (4. * np.pi/npix) * np.sum(hm * (M)**2.)
+        # L = 0
+        # for M in [M01, M02, M03]:
+        #     L += (4. * np.pi/npix) * np.sum(hm * (M)**2.)
+
+        L = (4. * np.pi/npix) * np.sum(hm * np.sqrt(M01**2. + M02**2. + M03**2.))
 
         return L, norms
 
