@@ -64,6 +64,10 @@ def MuellerMatrixElement(J,i,j):
 
     return M_ij
 
+def linear2dBi(E): return  2. * 10. * np.log10(E)
+
+def dBi2linear(Dbi): return np.power(10., Dbi/20.)
+
 class LeakageMetric(object):
     """
     Inputs:
@@ -87,7 +91,10 @@ class LeakageMetric(object):
     The result is a function of frequency stored in the attribute leakage_bound.
     The frequency axis is stored in freqs.
     """
-    def __init__(self, filenames, normalization, filename2freq=None):
+    def __init__(self, filenames, normalization, unit_type='linear', filename2freq=None):
+
+        self.unit_type = unit_type
+
         if normalization not in ['peak', 'integral', 'none']:
             raise ValueError('normalization must be "peak", "integral", or "none" ')
 
@@ -105,7 +112,7 @@ class LeakageMetric(object):
         self.freqs = []
         if all(['MHz' in fname for fname in filenames]):
             for fname in filenames:
-                f = re.findall('\d+' + 'MHz', fname)[0][:-3]
+                f = re.findall('\d+' + 'MHz', fname)[-1][:-3]
                 self.freqs.append(float(f))
         elif all(['f=' in fname for fname in filenames]):
             for fname in filenames:
@@ -131,9 +138,12 @@ class LeakageMetric(object):
         data = np.loadtxt(filename, skiprows=2)
         theta_data = np.radians(data[:,0])
         phi_data = np.radians(data[:,1])
-
-        Et = data[:,3] * np.exp(-1j * np.radians(data[:,4]))
-        Ep = data[:,5] * np.exp(-1j * np.radians(data[:,6]))
+        if self.unit_type == 'dbi':
+            Et = dBi2linear(data[:,3]) * np.exp(-1j * np.radians(data[:,4]))
+            Ep = dBi2linear(data[:,5]) * np.exp(-1j * np.radians(data[:,6]))
+        else:
+            Et = data[:,3] * np.exp(-1j * np.radians(data[:,4]))
+            Ep = data[:,5] * np.exp(-1j * np.radians(data[:,6]))
 
         cosp = np.cos(phi_data)
         sinp = np.sin(phi_data)
